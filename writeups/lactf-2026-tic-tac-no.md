@@ -329,5 +329,5 @@ How's this possible? Well, I guess I'll have to give you the flag now.
 lactf{th3_0nly_w1nn1ng_m0ve_1s_t0_p1ay}
 ```
 
-Notice how I had to play one regular move to complete the game. But we managed to make the computer write an X instead of an O, making it impossible to draw. We beat the unbeatable algorithm!
+Notice how I had to play one regular move to complete the game. But we managed to make the computer write an X instead of an O, making it impossible to draw. We beat the unbeatable algorithm! 
  
