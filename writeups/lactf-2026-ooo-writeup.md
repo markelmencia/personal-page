@@ -1,5 +1,5 @@
 ---
-title: "KnightCTF 2026: Knight Squad Academy"
+title: "LACTF 2026: ooo"
 date: "2026-02-09"
 description: 'Writeup for the "ooo" reversing challenge in the LACTF 2026.'
 ---
