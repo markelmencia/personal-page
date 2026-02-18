@@ -76,7 +76,7 @@ jobs:
       - name: Generate RSS and sitemap files
         run:  |
           node scripts/rss.js
-          node scripts/sitemap.is
+          node scripts/sitemap.js
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
       - name: Create CNAME
