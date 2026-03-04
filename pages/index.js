@@ -64,7 +64,7 @@ export default function Home({recent_posts}) {
       <RSSComponent/>
       {recent_posts.map((post) => {
                   return (
-                    <PostDescription key={post.slug} title={post.frontMatter.title} date={post.frontMatter.date} slug={post.slug} desc={post.frontMatter.description} type={post.type}/>
+                    <PostDescription key={post.slug} title={post.frontMatter.title} date={post.frontMatter.date} slug={post.slug} desc={post.frontMatter.description} type={post.type} img={post.frontMatter.img} alt={post.frontMatter.alt}/>
                   )
                 })}
     </main>

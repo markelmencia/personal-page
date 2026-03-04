@@ -53,7 +53,7 @@ function Blogs({posts}) {
         {filteredPosts.length > 0 ? (
           filteredPosts.map((post) => {
             return (
-              <PostDescription key={post.slug} title={post.frontMatter.title} date={post.frontMatter.date} slug={post.slug} desc={post.frontMatter.description} type="blog"
+              <PostDescription key={post.slug} title={post.frontMatter.title} date={post.frontMatter.date} slug={post.slug} desc={post.frontMatter.description} type="blog" img={post.frontMatter.img} alt={post.frontMatter.alt}
               />
             )
           })
