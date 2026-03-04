@@ -4,12 +4,15 @@ export default function CustomHead({
   title = 'Markel Mencía',
   description = 'Computer Engineering undergraduate interested in system-level research and cybersecurity.',
   canonical = 'https://markelmencia.com',
-  ogImage = 'https://markelmencia.com/img/logo.png',
+  ogImage,
   ogType = 'website',
   twitterCard = 'summary',
   author = 'Markel Mencía',
   publishedTime,
 }) {
+
+  var fullImage = ogImage ? `https://markelmencia.com${ogImage}` : 'https://markelmencia.com/img/logo.png'
+
   var fullTitle = "Markel Mencía"
   if (title != "Markel Mencía") {
     fullTitle = `${title} | Markel Mencía`
@@ -26,7 +29,7 @@ export default function CustomHead({
       <meta property="og:description" content={description} />
       <meta property="og:type" content={ogType} />
       <meta property="og:url" content={canonical} />
-      <meta property="og:image" content={ogImage} />
+      <meta property="og:image" content={fullImage} />
       <meta property="og:site_name" content="Markel Mencía" />
       <meta property="og:locale" content="en_US" />
 
@@ -35,7 +38,7 @@ export default function CustomHead({
       <meta name="twitter:card" content={twitterCard} />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:image" content={fullImage} />
 
       <meta name="robots" content="index, follow" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
