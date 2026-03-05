@@ -4,7 +4,7 @@
         <description><![CDATA[Markel's blog, mainly focused on Computer Science but also about other topics.]]></description>
         <link>https://markelmencia.com</link>
         <generator>RSS for Node</generator>
-        <lastBuildDate>Thu, 05 Mar 2026 10:11:24 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 05 Mar 2026 10:24:44 GMT</lastBuildDate>
         <atom:link href="https://markelmencia.com/rss.xml" rel="self" type="application/rss+xml"/>
         <language><![CDATA[en]]></language>
         <item>
@@ -367,7 +367,7 @@ int main() {
     return 0;
 }
 </code></pre>
-<p>Like in the <a href="lactf-2026-tic-tac-no">tic-tac-no</a> challenge, this is a lot of code. Let's look at what happens when we execute the binary:</p>
+<p>Like in the <a href="https://markelmencia.com/lactf-2026-tic-tac-no">tic-tac-no</a> challenge, this is a lot of code. Let's look at what happens when we execute the binary:</p>
 <pre><code>$ ./chall
 
     .=========================================.
@@ -1259,8 +1259,8 @@ p.interactive()
             <title><![CDATA[ROP Emporium x86-64 Challenge 8: ret2csu]]></title>
             <description><![CDATA[<h1>ROP Emporium x86-64 Challenge 8: ret2csu</h1>
 <h4>December 29, 2025</h4>
-<p>We're in the home stretch! This is the last challenge of ROP Emporium. This challenge is not as unconventional as <a href="rop-emporium-pivot-writeup">the previous one</a>, but it will present some challenges.</p>
-<p>The description says that this challenge is similar to the <a href="rop-emporium-callme-writeup">callme</a> challenge. There's a <code>ret2win</code> function somewhere that we have to call with <code>0xdeadbeefdeadbeef</code>, <code>0xcafebabecafebabe</code> and <code>0xd00df00dd00df00d</code> as arguments. The catch is that the number of gadgets we have is very limited.</p>
+<p>We're in the home stretch! This is the last challenge of ROP Emporium. This challenge is not as unconventional as <a href="https://markelmencia.com/rop-emporium-pivot-writeup">the previous one</a>, but it will present some challenges.</p>
+<p>The description says that this challenge is similar to the <a href="https://markelmencia.com/rop-emporium-callme-writeup">callme</a> challenge. There's a <code>ret2win</code> function somewhere that we have to call with <code>0xdeadbeefdeadbeef</code>, <code>0xcafebabecafebabe</code> and <code>0xd00df00dd00df00d</code> as arguments. The catch is that the number of gadgets we have is very limited.</p>
 <p>However, with this challenge we'll learn a technique that will allow us to obtain useful gadgets in virtually every ELF binary. This technique has to do with the name of this challenge: ret2csu. This vulnerability actually has a lot to do with some of the concepts of the previous challenge: dynamic linking. Let's explain what is it about.</p>
 <h2>The issue with dynamically linked binaries</h2>
 <p>In the previous challenge we briefly talked about dynamic/shared libraries. These libraries are linked into a binary at runtime. They are quite handful because they reduce the size of binaries, because their functions aren't "copied" into the them during compile time, like static libraries do. They just get loaded into memory, allowing multiple programs to link them.</p>
@@ -1851,7 +1851,7 @@ x86_64
 badchars are: 'x', 'g', 'a', '.'
 </code></pre>
 <p>Great, so we can't really write <code>flag.txt</code> anywhere... or can we?</p>
-<p>This challenge is a glorified version of the <a href="rop-emporium-write4-writeup">previous challenge</a>, write4. We'll need to call <code>print_file</code> with the argument <code>flag.txt</code>, just like in write4. The issue is that we won't be able to write that string directly, because as we can see, it contains badchars.</p>
+<p>This challenge is a glorified version of the <a href="https://markelmencia.com/rop-emporium-write4-writeup">previous challenge</a>, write4. We'll need to call <code>print_file</code> with the argument <code>flag.txt</code>, just like in write4. The issue is that we won't be able to write that string directly, because as we can see, it contains badchars.</p>
 <p>Our goal is to somehow avoid this restriction indirectly.  We'll see along the way. For now, let's see what we can work with:</p>
 <pre><code>pwndbg> info functions
 0x00000000004004d8  _init
@@ -2251,7 +2251,7 @@ Segmentation fault
             <title><![CDATA[ROP Emporium x86-64 Challenge 3: callme]]></title>
             <description><![CDATA[<h1>ROP Emporium Challenge 3: callme</h1>
 <h4>December 26, 2025</h4>
-<p>This challenge won't be very difficult if we are understood gadgets properly from <a href="rop-emporium-split-writeup">the last challenge</a>.  As the description says, for this challenge we'll need to call three functions in a specific order, with some specific arguments. These three functions are <code>callme_one</code>, <code>callme_two</code> and <code>callme_three</code>. The arguments for those three functions must be <code>0xdeadbeefdeadbeef</code>, <code>0xcafebabecafebabe</code> and <code>0xd00df00dd00df00d</code>.</p>
+<p>This challenge won't be very difficult if we are understood gadgets properly from <a href="https://markelmencia.com/rop-emporium-split-writeup">the last challenge</a>.  As the description says, for this challenge we'll need to call three functions in a specific order, with some specific arguments. These three functions are <code>callme_one</code>, <code>callme_two</code> and <code>callme_three</code>. The arguments for those three functions must be <code>0xdeadbeefdeadbeef</code>, <code>0xcafebabecafebabe</code> and <code>0xd00df00dd00df00d</code>.</p>
 <p>As we have done in every challenge, let's start by seeing what functions this binary has:</p>
 <pre><code>pwndbg> info functions
 0x00000000004006a8  _init
@@ -2380,7 +2380,7 @@ ROPE{a_placeholder_32byte_flag!}
             <description><![CDATA[<h1>ROP Emporium x86-64 Challenge 6: fluff</h1>
 <h4>December 26, 2025</h4>
 <p>Brace yourself for this one; although conceptually this challenge is nothing new, we'll have to get creative.</p>
-<p>The description tells us that this challenge is not very different from the <a href="rop-emporium-write4-writeup">write4</a> challenge. We just need to call the <code>print_file</code> function in the binary with <code>flag.txt</code> as the argument. With all of this said, let's just jump right into it.</p>
+<p>The description tells us that this challenge is not very different from the <a href="https://markelmencia.com/rop-emporium-write4-writeup">write4</a> challenge. We just need to call the <code>print_file</code> function in the binary with <code>flag.txt</code> as the argument. With all of this said, let's just jump right into it.</p>
 <p>Let's start just like we've done until now, checking the functions in the binary:</p>
 <pre><code>pwndbg> info functions
 0x00000000004004d0  _init
@@ -2638,7 +2638,7 @@ Program received signal SIGSEGV, Segmentation fault.
 <h2>A small preface</h2>
 <p>Before starting with the writeup, I always find it important to talk about the tools needed for executing the exploit. To complete every challenge on ROP Emporium, I used two different tools: <strong>pwndbg</strong> to debug through the binary, and <strong>pwntools</strong> to ease the process of creating the input to perform the buffer overflows.</p>
 <p>Speaking of buffer overflows, these attacks are a strict requirement for every challenge in this website. You <em>will</em> learn to perform them with these challenges, but it's important to know the fundamentals before that.</p>
-<p>In this writeup I will gloss over some of the basics, but I might skip some fundamental explanations. However, I have written <a href="blog/how-to-perform-bof">an article</a> that goes over the very basics of buffer overflows, in case you want to read it before this one.</p>
+<p>In this writeup I will gloss over some of the basics, but I might skip some fundamental explanations. However, I have written <a href="https://markelmencia.com/blog/how-to-perform-bof">an article</a> that goes over the very basics of buffer overflows, in case you want to read it before this one.</p>
 <p>With this out of the way, let's start with the challenge.</p>
 <h2>Initial inspection</h2>
 <p>Before getting our hands dirty, it's always important to know what we have, what we don't have, and what restrictions exist. Executing the program normally is always a good place to start:</p>
@@ -2833,7 +2833,7 @@ payload += p64(RET_INSTRUCTION_ADDRESS)
 payload += p64(EXPLOIT_FUNCTION_ADDRESS)
 open("exploit", "bw").write(payload)
 </code></pre>
-<p>In order to obtain the offset I performed the same procedure I did in <a href="rop-emporium-ret2win-writeup">the last challenge</a>, and it turns out that every challenge in ROP Emporium has the same offset. Again, I plug in a return instruction address before the actual call to <code>usefulFunction</code> to align the stack (also explained in the last writeup), and then I call <code>usefulFunction</code> . Let's see what this does:</p>
+<p>In order to obtain the offset I performed the same procedure I did in <a href="https://markelmencia.com/rop-emporium-ret2win-writeup">the last challenge</a>, and it turns out that every challenge in ROP Emporium has the same offset. Again, I plug in a return instruction address before the actual call to <code>usefulFunction</code> to align the stack (also explained in the last writeup), and then I call <code>usefulFunction</code> . Let's see what this does:</p>
 <pre><code>$ python3 exploit.py
 $ ./split &#x3C; exploit
 split by ROP Emporium

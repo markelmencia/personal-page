@@ -22,8 +22,19 @@ const feed = new RSS({
       const processedContent = await remark().use(remarkHtml).process(content)
       var htmlContent = processedContent.toString()
 
-      htmlContent = htmlContent.replace(/src="\/([^"]+)"/g, 'src="https://markelmencia.com/$1"')
-      htmlContent = htmlContent.replace(/href="\/([^"]+)"/g, 'href="https://markelmencia.com/$1"')
+      htmlContent = htmlContent.replace(/src="(?!https?:\/\/)([^"]+)"/g,
+        (_, path) => {
+          const fullPath = path.startsWith('/') ? path : `/${path}`
+          return `src="https://markelmencia.com${fullPath}"`
+        }
+      )
+        
+      htmlContent = htmlContent.replace(/href="(?!https?:\/\/)([^"]+)"/g,
+        (_, path) => {
+          const fullPath = path.startsWith('/') ? path : `/${path}`
+          return `href="https://markelmencia.com${fullPath}"`
+        }
+      )
       
       return {slug, frontMatter, htmlContent, type: "blog"}
     })
@@ -39,8 +50,19 @@ const feed = new RSS({
       const processedContent = await remark().use(remarkHtml).process(content)
       var htmlContent = processedContent.toString()
 
-      htmlContent = htmlContent.replace(/src="\/([^"]+)"/g, 'src="https://markelmencia.com/$1"')
-      htmlContent = htmlContent.replace(/href="\/([^"]+)"/g, 'href="https://markelmencia.com/$1"')
+      htmlContent = htmlContent.replace(/src="(?!https?:\/\/)([^"]+)"/g,
+        (_, path) => {
+          const fullPath = path.startsWith('/') ? path : `/${path}`
+          return `src="https://markelmencia.com${fullPath}"`
+        }
+      )
+        
+      htmlContent = htmlContent.replace(/href="(?!https?:\/\/)([^"]+)"/g,
+        (_, path) => {
+          const fullPath = path.startsWith('/') ? path : `/${path}`
+          return `href="https://markelmencia.com${fullPath}"`
+        }
+      )
       
       return {slug, frontMatter, htmlContent, type: "writeups"}
     })
