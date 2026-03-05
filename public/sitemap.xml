@@ -39,8 +39,20 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://markelmencia.com/blog/my-two-cents-on-ai</loc>
+    <lastmod>2026-03-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://markelmencia.com/blog/webpage-finished-my-experience</loc>
     <lastmod>2025-12-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://markelmencia.com/blog/why-i-love-pwn-college</loc>
+    <lastmod>2026-02-25</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>

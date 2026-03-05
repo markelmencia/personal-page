@@ -20,7 +20,10 @@ const feed = new RSS({
       const { data: frontMatter, content } = matter(readFiles)
       
       const processedContent = await remark().use(remarkHtml).process(content)
-      const htmlContent = processedContent.toString()
+      var htmlContent = processedContent.toString()
+
+      htmlContent = htmlContent.replace(/src="\/([^"]+)"/g, 'src="https://markelmencia.com/$1"')
+      htmlContent = htmlContent.replace(/href="\/([^"]+)"/g, 'href="https://markelmencia.com/$1"')
       
       return {slug, frontMatter, htmlContent, type: "blog"}
     })
@@ -34,7 +37,10 @@ const feed = new RSS({
       const { data: frontMatter, content } = matter(readFiles)
       
       const processedContent = await remark().use(remarkHtml).process(content)
-      const htmlContent = processedContent.toString()
+      var htmlContent = processedContent.toString()
+
+      htmlContent = htmlContent.replace(/src="\/([^"]+)"/g, 'src="https://markelmencia.com/$1"')
+      htmlContent = htmlContent.replace(/href="\/([^"]+)"/g, 'href="https://markelmencia.com/$1"')
       
       return {slug, frontMatter, htmlContent, type: "writeups"}
     })
