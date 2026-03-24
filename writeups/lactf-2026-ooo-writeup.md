@@ -55,7 +55,7 @@ print("That's the flag! :)")
 
 Now we see why the challenge is called "ooo".
 
-We have a bunch of functions and variables with very similar names. With nothing else to look at, I quickly started renaming the functions and variables, for the script to be much readable:
+We have a bunch of functions and variables with very similar names. With nothing else to look at, I quickly started renaming the functions and variables, for the script to be much more readable:
 
 ```
 def aPlusB(a, b):
@@ -162,7 +162,6 @@ print("That's the flag! :)")
 
 That's much cleaner now isn't it?
 
-This is the algorithm that hints us what the flag is. Now, for challenges like these, bruteforcing always comes to mind. At the end of the day, flags contain readable characters, so there's only a few hundred characters we need to iterate through to get each flag character. The question is how. 
 
 Well, we need to consider something. In order to get one flag character, the algorithm uses two characters of our input. The sum of their ASCII values must return the value in the list, at index `num`. That's the key to get the characters! Because there's a very important detail: We *do* know how the flag starts. It's in the CTF information, and also commented in the code: `lactf{`. This should be enough, let alone just the letter `l`, which we know is the first. With this character we can get the second one just by subtracting the corresponding value in the list to that character. To understand this properly, I'll give an example for the first iteration:
 
@@ -194,4 +193,4 @@ $ python3 solve.py
 lactf{gоοօỏơóὀόὸὁὃὄὂȯöd_j0b
 ```
 
-That should do! However, we don't get the last character. That's fine though, we assume the last character is `}`. That's our flag!
+That should do! However, we don't get the last character. That's fine though, we assume the last character is `}`. And sure enough, that's our flag!
